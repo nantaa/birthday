@@ -788,6 +788,38 @@ body {
   pointer-events: none;
 }
 
+.quiz-polaroid.minimized {
+  transform: scale(0) rotate(0deg);
+  opacity: 0;
+  pointer-events: none !important;
+}
+
+.btn-minimize {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 25px;
+  height: 25px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: all 0.2s;
+}
+
+.btn-minimize:hover {
+  background: var(--accent);
+  color: white;
+}
+
 .quiz-photo {
   width: 100%;
   aspect-ratio: 4/3;

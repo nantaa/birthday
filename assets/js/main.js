@@ -363,24 +363,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Gmail Mailto Builder
+    // 8. Minimize Button Logic
+    const minimizeBtns = document.querySelectorAll('.btn-minimize');
+    minimizeBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const polaroid = this.closest('.quiz-polaroid');
+            if(polaroid) {
+                // Add a class that triggers CSS animation
+                polaroid.classList.add('minimized');
+                // Additionally ensure it cannot be clicked while minimized
+                polaroid.style.pointerEvents = 'none';
+            }
+        });
+    });
+
+    // Gmail API via Google Apps Script Webhook
     const sendEmailBtn = document.getElementById('js-send-email');
     if (sendEmailBtn) {
-        sendEmailBtn.addEventListener('click', () => {
-            const msg = document.getElementById('gratitude-message').value;
-            if (!msg.trim()) {
+        sendEmailBtn.addEventListener('click', async () => {
+            const msgInput = document.getElementById('gratitude-message');
+            const msg = msgInput ? msgInput.value.trim() : '';
+
+            if (!msg) {
                 alert("Please write a small message first! 💌");
                 return;
             }
-            // URL Encode the body text
-            const encodedBody = encodeURIComponent(msg);
 
-            // NOTE TO DEVELOPER: User must change 'your_email@gmail.com' to their actual email
-            const emailAddress = "your_email@gmail.com";
-            const subject = "A Birthday Message From Elema!";
+            const originalText = sendEmailBtn.textContent;
+            sendEmailBtn.textContent = "Sending...";
+            sendEmailBtn.disabled = true;
 
-            // Opens default mail client (or Gmail via web intents depending on device setup)
-            window.open(`mailto:${emailAddress}?subject=${encodeURIComponent(subject)}&body=${encodedBody}`);
+            try {
+                // To securely send an email via Gmail API from the frontend, 
+                // you must deploy a Google Apps Script as a Web App (instructions provided).
+                // PASTE YOUR DEPLOYED WEB APP URL BELOW:
+                const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1oMgL3Mzn2sQGgIQlQW80QxfJxrhasOXt8CgsbpjHz34dr_x2cdFPlKC8GLNrU8Rz/exec";
+
+                if (SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE") {
+                    alert("Developer note: You need to set the SCRIPT_URL in main.js to your actual Google Apps Script Web App URL! Please read the setup instructions.");
+                    return;
+                }
+
+                const formData = new URLSearchParams();
+                formData.append("message", msg);
+
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+
+                alert("Message safely sent to your beloved 💌");
+                if (msgInput) msgInput.value = "";
+
+                if (typeof gratitudeForm !== 'undefined' && gratitudeForm) {
+                    gratitudeForm.hidden = true;
+                }
+
+            } catch (error) {
+                console.error("Fetch error:", error);
+                alert("Network error while trying to send the message.");
+            } finally {
+                sendEmailBtn.textContent = originalText;
+                sendEmailBtn.disabled = false;
+            }
         });
     }
 
