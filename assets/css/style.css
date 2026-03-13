@@ -462,3 +462,37 @@ body {
 .scatter-frame.is-scattered {
   opacity: 1;
 }
+
+/* CURSOR LOVE PARTICLES */
+.cursor-love {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  color: var(--accent);
+  font-size: 20px;
+  animation: fall-and-fade 1s linear forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes fall-and-fade {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(100px) scale(0.5); opacity: 0; }
+}
+
+/* BG DOODLES */
+.doodles-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0; /* Right above background */
+  opacity: 0.15; /* Subtle opacity so it doesn't distract */
+}
+
+.doodle {
+  position: absolute;
+  color: var(--accent);
+  font-family: var(--font-handwriting);
+}

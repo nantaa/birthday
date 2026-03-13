@@ -2,12 +2,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const envelope = document.getElementById('js-envelope');
     const heartsLayer = document.getElementById('js-hearts');
     const framesLayer = document.getElementById('js-frames');
+    const doodlesLayer = document.getElementById('js-doodles');
     const replayBtn = document.getElementById('js-replay');
     const hintText = document.getElementById('js-hint');
     const instructionText = document.getElementById('js-instruction');
     
     let isOpen = false;
     let bgMusic = new Audio('assets/audio/Selamat Ulang Tahun.mp3');
+
+    // Initialize Doodles
+    createDoodles();
+
+    // Raining love on cursor move
+    document.addEventListener('mousemove', handleCursorMove);
 
     // Open envelope action
     envelope.addEventListener('click', () => {
@@ -137,5 +144,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 frame.classList.add('is-scattered');
             }, 100 * index + 300); // Stagger animations
         });
+    }
+
+    function handleCursorMove(e) {
+        // Create a love particle every few pixels to avoid lagging
+        if (Math.random() > 0.3) return; 
+
+        const love = document.createElement('div');
+        love.classList.add('cursor-love');
+        // Randomize the character (hearts, stars, etc)
+        const characters = ['❤', '💕', '💖', '💗', '💘', '✨'];
+        love.innerText = characters[Math.floor(Math.random() * characters.length)];
+        
+        love.style.left = `${e.clientX}px`;
+        love.style.top = `${e.clientY}px`;
+        
+        document.body.appendChild(love);
+        
+        // Remove after animation (1s)
+        setTimeout(() => {
+            love.remove();
+        }, 1000);
+    }
+
+    function createDoodles() {
+        if (!doodlesLayer) return;
+
+        const numDoodles = 15;
+        const doodleTexts = ['Love', 'Forever', '❤', 'Happy', 'Smile', 'Joy', '23', '🎉', 'Cutie'];
+
+        for (let i = 0; i < numDoodles; i++) {
+            const doodle = document.createElement('div');
+            doodle.classList.add('doodle');
+            doodle.innerText = doodleTexts[Math.floor(Math.random() * doodleTexts.length)];
+            
+            // Random position mostly around edges, not dead center
+            let left, top;
+            if (Math.random() > 0.5) {
+                // Left or right side
+                left = Math.random() > 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
+                top = Math.random() * 100;
+            } else {
+                // Top or bottom side
+                left = Math.random() * 100;
+                top = Math.random() > 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
+            }
+
+            // Random rotation and size
+            const rot = Math.random() * 360;
+            const size = 1 + Math.random() * 2; // 1rem to 3rem
+
+            doodle.style.left = `${left}vw`;
+            doodle.style.top = `${top}vh`;
+            doodle.style.transform = `rotate(${rot}deg)`;
+            doodle.style.fontSize = `${size}rem`;
+
+            doodlesLayer.appendChild(doodle);
+        }
     }
 });
