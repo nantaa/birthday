@@ -788,6 +788,10 @@ body {
   pointer-events: none;
 }
 
+.quiz-polaroid.solved .btn-minimize {
+  pointer-events: auto; /* Allow closing even when solved */
+}
+
 .quiz-polaroid.minimized {
   transform: scale(0) rotate(0deg);
   opacity: 0;
@@ -798,21 +802,22 @@ body {
   position: absolute;
   top: 15px;
   right: 15px;
-  width: 25px;
-  height: 25px;
+  width: 35px;
+  height: 35px;
   background: white;
   border: none;
   border-radius: 50%;
-  font-size: 1.2rem;
+  font-size: 1.5rem; /* Larger 'X' */
   line-height: 1;
   color: var(--text-muted);
   cursor: pointer;
-  z-index: 20;
+  z-index: 50; /* Above all other polaroid children */
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Enhance depth */
   transition: all 0.2s;
+  pointer-events: auto; /* Guarantee touch interaction */
 }
 
 .btn-minimize:hover {

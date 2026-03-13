@@ -365,17 +365,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 8. Minimize Button Logic
     const minimizeBtns = document.querySelectorAll('.btn-minimize');
+
+    const handleMinimize = function(e) {
+        e.preventDefault();
+        e.stopPropagation(); // Stop event from bubbling up to parents
+        const polaroid = this.closest('.quiz-polaroid');
+        if(polaroid) {
+            // Add a class that triggers CSS animation
+            polaroid.classList.add('minimized');
+            // Additionally ensure it cannot be clicked while minimized
+            polaroid.style.pointerEvents = 'none';
+        }
+    };
+
     minimizeBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const polaroid = this.closest('.quiz-polaroid');
-            if(polaroid) {
-                // Add a class that triggers CSS animation
-                polaroid.classList.add('minimized');
-                // Additionally ensure it cannot be clicked while minimized
-                polaroid.style.pointerEvents = 'none';
-            }
-        });
+        btn.addEventListener('click', handleMinimize);
+        // Specifically adding touchstart for mobile devices where clicks might be delayed or blocked
+        btn.addEventListener('touchstart', handleMinimize, { passive: false });
     });
 
     // Gmail API via Google Apps Script Webhook
