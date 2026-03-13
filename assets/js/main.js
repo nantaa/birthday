@@ -38,15 +38,33 @@ document.addEventListener('DOMContentLoaded', () => {
         audioBtn.hidden = false;
     }
 
-    // 3. Music Toggle
+    // 3. Music Toggle & Auto-play Logic
+    const attemptAutoPlay = () => {
+        if (bgMusic.paused) {
+            bgMusic.play().then(() => {
+                if (audioBtn) audioBtn.textContent = 'Pause music ♪';
+            }).catch(e => {
+                console.log("Browser auto-play prevented. Waiting for user interaction.");
+            });
+        }
+    };
+
+    // Try playing immediately
+    attemptAutoPlay();
+
+    // Browser might block auto-play without user interaction, so we listen to the first interaction
+    document.addEventListener('click', attemptAutoPlay, { once: true });
+    document.addEventListener('touchstart', attemptAutoPlay, { once: true });
+
     if (audioBtn) {
-        audioBtn.addEventListener('click', () => {
+        audioBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // prevent document click from triggering if they click the button directly
             if (bgMusic.paused) {
                 bgMusic.play().catch(e => console.log("Audio play failed:", e));
                 audioBtn.textContent = 'Pause music ♪';
             } else {
                 bgMusic.pause();
-                audioBtn.textContent = 'Play our song ♪';
+                audioBtn.textContent = 'Play song ♪';
             }
         });
     }
@@ -84,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         envelope.classList.add('is-open');
 
         // Handle music (if they opted in via button already, let it play, else maybe auto try)
-        if (bgMusic.paused && audioBtn.textContent === 'Play our song ♪') {
+        if (bgMusic.paused) {
             bgMusic.play().then(() => {
                 audioBtn.textContent = 'Pause music ♪';
             }).catch(e => console.log("Auto-play prevented"));
@@ -366,11 +384,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 8. Minimize Button Logic
     const minimizeBtns = document.querySelectorAll('.btn-minimize');
 
-    const handleMinimize = function(e) {
+    const handleMinimize = function (e) {
         e.preventDefault();
         e.stopPropagation(); // Stop event from bubbling up to parents
         const polaroid = this.closest('.quiz-polaroid');
-        if(polaroid) {
+        if (polaroid) {
             // Add a class that triggers CSS animation
             polaroid.classList.add('minimized');
             // Additionally ensure it cannot be clicked while minimized
