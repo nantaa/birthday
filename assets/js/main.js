@@ -170,36 +170,71 @@ document.addEventListener('DOMContentLoaded', () => {
     function createDoodles() {
         if (!doodlesLayer) return;
 
-        const numDoodles = 15;
-        const doodleTexts = ['Love', 'Forever', '❤', 'Happy', 'Smile', 'Joy', '23', '🎉', 'Cutie'];
+        // Clear existing doodles
+        doodlesLayer.innerHTML = '';
+
+        const numDoodles = 12; // slightly reduced to give more breathing room
+        const doodleTexts = ['Love', 'Forever', '❤', 'Happy', 'Smile', 'Joy', '23', '🎉', 'Cutie', 'Beautiful', 'Gorgeous', 'Lovely', 'Stunning', 'Pretty', 'Angel'];
+        
+        // Track positions to prevent overlap
+        const placedPositions = [];
+        const minDistance = 15; // minimum distance in viewport units (vw/vh)
+
+        // Helper to check distance
+        function isTooClose(x, y) {
+            for (let pos of placedPositions) {
+                const dx = pos.x - x;
+                const dy = pos.y - y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < minDistance) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         for (let i = 0; i < numDoodles; i++) {
-            const doodle = document.createElement('div');
-            doodle.classList.add('doodle');
-            doodle.innerText = doodleTexts[Math.floor(Math.random() * doodleTexts.length)];
-            
-            // Random position mostly around edges, not dead center
             let left, top;
-            if (Math.random() > 0.5) {
-                // Left or right side
-                left = Math.random() > 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
-                top = Math.random() * 100;
-            } else {
-                // Top or bottom side
-                left = Math.random() * 100;
-                top = Math.random() > 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
+            let attempts = 0;
+            const maxAttempts = 50;
+            let foundGoodPosition = false;
+
+            while (attempts < maxAttempts && !foundGoodPosition) {
+                // Try generating a position around the edges
+                if (Math.random() > 0.5) {
+                    // Left or right side (0-20vw or 80-100vw)
+                    left = Math.random() > 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
+                    top = Math.random() * 100; // anywhere vertically
+                } else {
+                    // Top or bottom side (0-100vw, 0-20vh or 80-100vh)
+                    left = Math.random() * 100;
+                    top = Math.random() > 0.5 ? Math.random() * 20 : 80 + Math.random() * 20;
+                }
+
+                if (!isTooClose(left, top)) {
+                    foundGoodPosition = true;
+                }
+                attempts++;
             }
 
-            // Random rotation and size
-            const rot = Math.random() * 360;
-            const size = 1 + Math.random() * 2; // 1rem to 3rem
+            if (foundGoodPosition) {
+                placedPositions.push({ x: left, y: top });
 
-            doodle.style.left = `${left}vw`;
-            doodle.style.top = `${top}vh`;
-            doodle.style.transform = `rotate(${rot}deg)`;
-            doodle.style.fontSize = `${size}rem`;
+                const doodle = document.createElement('div');
+                doodle.classList.add('doodle');
+                doodle.innerText = doodleTexts[Math.floor(Math.random() * doodleTexts.length)];
 
-            doodlesLayer.appendChild(doodle);
+                // Random rotation and size
+                const rot = Math.random() * 360;
+                const size = 1.2 + Math.random() * 1.5; // 1.2rem to 2.7rem
+
+                doodle.style.left = `${left}vw`;
+                doodle.style.top = `${top}vh`;
+                doodle.style.transform = `rotate(${rot}deg)`;
+                doodle.style.fontSize = `${size}rem`;
+
+                doodlesLayer.appendChild(doodle);
+            }
         }
     }
 });
