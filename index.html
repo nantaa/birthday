@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 23rd Birthday, Elema Astri!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Outfit:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+    <main class="page">
+        <section class="card-container">
+            <div class="envelope shadow-pulse" id="js-envelope">
+                <div class="envelope__back"></div>
+                <div class="envelope__letter">
+                    <div class="letter__inner">
+                        <!-- Picture Placement Personal Touch -->
+                        <div class="letter__photo-wrapper">
+                            <img src="assets/img/photo.jpg" alt="Elema Astri" class="letter__photo">
+                            <div class="photo-pin"></div>
+                        </div>
+
+                        <p class="letter__eyebrow">To my lovely person,</p>
+                        <h1 class="letter__title">Happy 23rd Birthday, Elema Astri! 🎉</h1>
+                        <p class="letter__body">
+                            I wanted to do something special for you today. Every moment spent with you is like a
+                            beautiful dream come true.
+                            You bring so much joy and light into my life that sometimes I wonder how I got so lucky.
+                        </p>
+                        <p class="letter__body">
+                            May this next year of your life bring you endless happiness, deep peace, and all the
+                            wonderful things you deserve.
+                            I'll be right here, holding your hand through it all.
+                        </p>
+                        <p class="letter__signature">With all my love,<br />Aryo</p>
+                    </div>
+                </div>
+                <div class="envelope__front"></div>
+                <div class="envelope__flap"></div>
+                <!-- CSS Heart in the center to tap on -->
+                <div class="envelope__seal">
+                    <div class="seal-heart"></div>
+                </div>
+            </div>
+
+            <!-- Hearts overlay to float upwards -->
+            <div class="hearts-layer" id="js-hearts"></div>
+
+            <!-- Scattering frames overlay -->
+            <div class="frames-layer" id="js-frames"></div>
+
+            <div class="controls">
+                <p class="hint" id="js-hint">Tap the envelope to open your letter 💌</p>
+                <button class="btn btn-replay" id="js-replay" hidden>Close</button>
+                <p class="photo-instruction" id="js-instruction" hidden><small><em></em></small></p>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,464 @@
+:root {
+  --bg-start: #ffeef5;
+  --bg-end: #fff9f0;
+  
+  --envelope-base: #fdfafb;
+  --envelope-shadow: rgba(0, 0, 0, 0.15);
+  --envelope-line: #f3c5d1;
+  --envelope-flap: #f7e6ea;
+  --envelope-front-left: #fdfafb;
+  --envelope-front-right: #f9f0f2;
+  
+  --accent: #ff5c8a;
+  --accent-soft: #ffc2d1;
+  
+  --text-main: #35263a;
+  --text-muted: #7d6b7f;
+  
+  --letter-bg: #fffefe;
+  
+  --font-heading: 'Outfit', sans-serif;
+  --font-handwriting: 'Great Vibes', cursive;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-heading);
+  background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.page {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+}
+
+/* ENVELOPE */
+.envelope {
+  position: relative;
+  width: clamp(280px, 80vw, 500px);
+  aspect-ratio: 4 / 3;
+  margin-top: 50px;
+  perspective: 1000px;
+  cursor: pointer;
+  transition: transform 0.4s ease;
+  z-index: 5;
+}
+
+.shadow-pulse {
+  animation: pulse-idle 3s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pulse-idle {
+  0% { transform: scale(1) translateY(0); filter: drop-shadow(0 10px 15px var(--envelope-shadow)); }
+  100% { transform: scale(1.02) translateY(-4px); filter: drop-shadow(0 20px 25px var(--envelope-shadow)); }
+}
+
+/* Envelope Parts */
+.envelope__back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--envelope-base);
+  border-radius: 4px;
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.03);
+  z-index: 0;
+}
+
+.envelope__front {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Creating the cross flaps using borders */
+.envelope__front::before,
+.envelope__front::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  bottom: 0;
+}
+
+.envelope__front::before {
+  left: 0;
+  border-bottom: calc(clamp(280px, 80vw, 500px) * 0.75 / 2 + 10px) solid var(--envelope-front-left);
+  border-left: calc(clamp(280px, 80vw, 500px) / 2) solid var(--envelope-front-left);
+  border-right: calc(clamp(280px, 80vw, 500px) / 2) solid transparent;
+  border-top: calc(clamp(280px, 80vw, 500px) * 0.75 / 2 - 10px) solid transparent;
+  filter: drop-shadow(2px -2px 5px rgba(0,0,0,0.05));
+  z-index: 4;
+}
+
+.envelope__front::after {
+  right: 0;
+  border-bottom: calc(clamp(280px, 80vw, 500px) * 0.75 / 2 + 10px) solid var(--envelope-front-right);
+  border-right: calc(clamp(280px, 80vw, 500px) / 2) solid var(--envelope-front-right);
+  border-left: calc(clamp(280px, 80vw, 500px) / 2) solid transparent;
+  border-top: calc(clamp(280px, 80vw, 500px) * 0.75 / 2 - 10px) solid transparent;
+  filter: drop-shadow(-2px -2px 5px rgba(0,0,0,0.05));
+  z-index: 3;
+}
+
+/* Bottom flap */
+.envelope__front .bottom-flap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-bottom: calc(clamp(280px, 80vw, 500px) * 0.75 / 2 + 20px) solid var(--envelope-base);
+  border-left: calc(clamp(280px, 80vw, 500px) / 2) solid transparent;
+  border-right: calc(clamp(280px, 80vw, 500px) / 2) solid transparent;
+  z-index: 5;
+  filter: drop-shadow(0 -4px 4px rgba(0,0,0,0.04));
+}
+
+.envelope__flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  border-top: calc(clamp(280px, 80vw, 500px) * 0.75 / 2 + 20px) solid var(--envelope-flap);
+  border-left: calc(clamp(280px, 80vw, 500px) / 2) solid transparent;
+  border-right: calc(clamp(280px, 80vw, 500px) / 2) solid transparent;
+  z-index: 6;
+  transform-origin: top center;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), z-index 0s 0.3s;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));
+}
+
+/* The seal heart in the middle of the flap */
+.envelope__seal {
+  position: absolute;
+  top: calc(clamp(280px, 80vw, 500px) * 0.75 / 2 + 5px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  transition: opacity 0.3s ease 0.1s;
+  pointer-events: none;
+}
+
+.seal-heart {
+  width: 40px;
+  height: 40px;
+  background-color: var(--accent);
+  position: relative;
+  transform: rotate(45deg);
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(255, 92, 138, 0.4);
+}
+.seal-heart::before,
+.seal-heart::after {
+  content: '';
+  width: 40px;
+  height: 40px;
+  background-color: var(--accent);
+  border-radius: 50%;
+  position: absolute;
+}
+.seal-heart::before { top: -20px; left: 0; }
+.seal-heart::after { top: 0; left: -20px; }
+
+
+/* LETTER */
+.envelope__letter {
+  position: absolute;
+  bottom: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+  background: var(--letter-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 1; /* Below FRONT, Above BACK */
+  transform: translateY(0);
+  transition: transform 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275), height 0.9s ease, bottom 0.9s ease, left 0.9s ease, width 0.9s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.envelope__letter::-webkit-scrollbar {
+  display: none;
+}
+
+.letter__inner {
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  opacity: 0.5;
+  transition: opacity 0.6s ease 0.4s;
+}
+
+.letter__photo-wrapper {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 80px;
+  height: 90px;
+  background: white;
+  padding: 4px 4px 16px 4px;
+  box-shadow: 1px 3px 8px rgba(0,0,0,0.15);
+  transform: rotate(6deg);
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+.letter__photo-wrapper:hover {
+  transform: rotate(0deg) scale(1.1);
+}
+.letter__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-pin {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle at 30% 30%, #ff8fa3, var(--accent));
+  border-radius: 50%;
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.3), inset -1px -1px 3px rgba(0,0,0,0.2);
+}
+
+.letter__eyebrow {
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.letter__title {
+  font-family: var(--font-handwriting);
+  font-size: 2.8rem;
+  color: var(--text-main);
+  margin-bottom: 16px;
+  line-height: 1.1;
+  max-width: 90%;
+}
+
+.letter__body {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.letter__signature {
+  font-family: var(--font-handwriting);
+  font-size: 2rem;
+  text-align: right;
+  margin-top: auto;
+  color: var(--accent);
+}
+
+/* OPEN ANIMATIONS */
+.is-open .shadow-pulse {
+  animation: none;
+  transform: scale(0.9) translateY(40px); /* Move down and scale slightly */
+}
+
+.is-open .envelope__flap {
+  transform: rotateX(180deg);
+  z-index: 0; /* Fall behind letter once open */
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), z-index 0s 0.6s;
+}
+
+.is-open .envelope__seal {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.is-open .envelope__letter {
+  transform: translateY(-40px); 
+  height: 160%; /* More compact height */
+  width: 104%; /* Slightly wider than envelope, much smaller than before */
+  left: -2%; /* Center horizontally */
+  bottom: 0%; /* Center relative to envelope fold */
+  z-index: 10; /* Bring in front of all envelope layers */
+  box-shadow: 0 -10px 20px rgba(0,0,0,0.1);
+}
+
+.is-open .letter__inner {
+  opacity: 1;
+}
+
+/* HEARTS LAYER */
+.hearts-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.floating-heart {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--accent);
+  transform: rotate(45deg);
+  opacity: 0;
+  animation: float-up 3s ease-in-out forwards;
+}
+
+.floating-heart::before,
+.floating-heart::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: absolute;
+}
+.floating-heart::before { top: -10px; left: 0; }
+.floating-heart::after { top: 0; left: -10px; }
+
+@keyframes float-up {
+  0% { transform: translateY(0) rotate(45deg) scale(0.5); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: translateY(-300px) rotate(45deg) scale(1.2); opacity: 0; }
+}
+
+/* CONTROLS */
+.controls {
+  position: absolute;
+  bottom: -60px;
+  text-align: center;
+  width: 100%;
+  transition: opacity 0.3s;
+}
+
+.hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.6);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  display: inline-block;
+  animation: fade-in 1s ease 1s both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(255, 92, 138, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin: 0 8px;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(255, 92, 138, 0.4);
+}
+
+.btn[hidden] {
+  display: none;
+}
+
+.photo-instruction {
+  margin-top: 12px;
+  color: #a494a6;
+}
+
+/* Modifiers */
+.is-open .hint {
+  display: none;
+}
+
+@media (max-width: 400px) {
+  .envelope {
+    margin-top: 100px;
+  }
+}
+
+/* SCATTERING FRAMES */
+.frames-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2; /* Between envelope back and front */
+}
+
+.scatter-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(120px, 20vw, 250px);
+  aspect-ratio: 1;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.1);
+  transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.8s ease;
+  border: 8px solid white;
+  box-shadow: 2px 4px 15px rgba(0,0,0,0.15);
+  border-bottom-width: 25px; /* Polaroid like look */
+  background-color: white; /* In case the frame image is transparent */
+}
+
+.scatter-photo {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f0f0f0;
+}
+
+.scatter-frame.is-scattered {
+  opacity: 1;
+}
