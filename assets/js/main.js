@@ -4,11 +4,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const framesLayer = document.getElementById('js-frames');
     const doodlesLayer = document.getElementById('js-doodles');
     const replayBtn = document.getElementById('js-replay');
-    const hintText = document.getElementById('js-hint');
+    let hintText = document.getElementById('js-hint');
+
+    // Re-create the hint text if it was accidentally removed from HTML
+    if (!hintText) {
+        hintText = document.createElement('p');
+        hintText.id = 'js-hint';
+        hintText.className = 'hint';
+        hintText.innerText = 'Tap the envelope to open your letter 💌';
+
+        const controlsDiv = document.querySelector('.controls');
+        if (controlsDiv) {
+            controlsDiv.insertBefore(hintText, controlsDiv.firstChild);
+        }
+    }
+
     const instructionText = document.getElementById('js-instruction');
-    
+
+    // New Elements
+    const introOverlay = document.getElementById('envelope-overlay');
+    const bgMusic = new Audio('assets/audio/Selamat Ulang Tahun.mp3');
+    const audioBtn = document.getElementById('btn-audio');
+    const easterEggTrigger = document.getElementById('js-easter-egg');
+    const secretPhoto = document.getElementById('js-secret-photo');
+    const quizLayer = document.getElementById('js-quiz-layer');
+    const gratitudeForm = document.getElementById('js-gratitude-form');
+
     let isOpen = false;
-    let bgMusic = new Audio('assets/audio/Selamat Ulang Tahun.mp3');
+    let quizzesSolved = 0;
+
+    // Show audio button immediately since intro is removed
+    if (audioBtn) {
+        audioBtn.hidden = false;
+    }
+
+    // 3. Music Toggle
+    if (audioBtn) {
+        audioBtn.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play().catch(e => console.log("Audio play failed:", e));
+                audioBtn.textContent = 'Pause music ♪';
+            } else {
+                bgMusic.pause();
+                audioBtn.textContent = 'Play our song ♪';
+            }
+        });
+    }
+
+    // 4. Easter Egg
+    if (easterEggTrigger && secretPhoto) {
+        easterEggTrigger.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent letter from closing
+            secretPhoto.classList.toggle('revealed');
+        });
+    }
 
     // Initialize Doodles
     createDoodles();
@@ -30,11 +79,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openEnvelope() {
         isOpen = true;
-        
+
         // Add open class which triggers CSS transitons
         envelope.classList.add('is-open');
-        // Play song
-        bgMusic.play().catch(e => console.log("Audio play failed:", e));
+
+        // Handle music (if they opted in via button already, let it play, else maybe auto try)
+        if (bgMusic.paused && audioBtn.textContent === 'Play our song ♪') {
+            bgMusic.play().then(() => {
+                audioBtn.textContent = 'Pause music ♪';
+            }).catch(e => console.log("Auto-play prevented"));
+        }
 
         // Create flying hearts effect
         createHearts();
@@ -43,37 +97,56 @@ document.addEventListener('DOMContentLoaded', () => {
         scatterFrames();
 
         // UI adjustments
-        hintText.hidden = true;
-        
+        if (hintText) {
+            hintText.hidden = true;
+            hintText.style.display = 'none';
+        }
+
         // Show buttons gently after animation starts to finish
         setTimeout(() => {
             replayBtn.hidden = false;
             instructionText.hidden = false;
+
+            const saySomethingBtn = document.getElementById('js-say-something');
+            if (saySomethingBtn) saySomethingBtn.hidden = false;
+
+            // Reveal quiz
+            if (quizLayer) quizLayer.hidden = false;
         }, 1200);
     }
 
     function closeEnvelope() {
         isOpen = false;
-        
+
         // Remove open class
         envelope.classList.remove('is-open');
 
-        // Pause song and reset time
-        bgMusic.pause();
-        bgMusic.currentTime = 0;
+        // Pause song but don't reset unless you want to
+        // bgMusic.pause();
+        // audioBtn.textContent = 'Play our song ♪';
 
         // UI adjustments
         replayBtn.hidden = true;
         instructionText.hidden = true;
-        
+
+        const saySomethingBtn = document.getElementById('js-say-something');
+        if (saySomethingBtn) saySomethingBtn.hidden = true;
+
+        // Hide features
+        if (quizLayer) quizLayer.hidden = true;
+        if (gratitudeForm) gratitudeForm.hidden = true;
+
         // Let it settle before showing hint again
         setTimeout(() => {
-            hintText.hidden = false;
+            if (hintText) {
+                hintText.hidden = false;
+                hintText.style.display = '';
+            }
         }, 800);
-        
+
         // Clear hearts
         heartsLayer.innerHTML = '';
-        
+
         // Clear frames
         if (framesLayer) {
             framesLayer.innerHTML = '';
@@ -83,27 +156,27 @@ document.addEventListener('DOMContentLoaded', () => {
     function createHearts() {
         // Number of hearts to generate
         const heartCount = 15;
-        
+
         for (let i = 0; i < heartCount; i++) {
             const heart = document.createElement('div');
             heart.classList.add('floating-heart');
-            
+
             // Randomize position and animation delay
             const randomLeft = Math.floor(Math.random() * 100); // 0 to 100% width
             const randomDelay = Math.random() * 0.5; // 0 to 0.5s delay
             const randomScale = 0.5 + Math.random() * 0.7; // 0.5 to 1.2
-            
+
             heart.style.left = `${randomLeft}%`;
             heart.style.animationDelay = `${randomDelay}s`;
             // Using transform scale on variable wasn't fully set up in my keyframe easily since the keyframe manages it.
             // Simplified custom variable for keyframes if we wanted, but let's stick to inline style tweak.
             heart.style.setProperty('--scale-factor', randomScale);
-            
+
             heartsLayer.appendChild(heart);
-            
+
             // Remove from DOM after animation completes to keep it clean (3s duration + max delay)
             setTimeout(() => {
-                if(heartsLayer.contains(heart)){
+                if (heartsLayer.contains(heart)) {
                     heart.remove();
                 }
             }, 3500);
@@ -112,32 +185,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function scatterFrames() {
         if (!framesLayer) return;
-        
+
         // Target positions based on viewport center, and placeholder image arrays
         const frameTargets = [
             { tx: -35, ty: -35, rot: -15, img: 'assets/img/6156929352642269386.jpg' }, // Top left
-            { tx: -35, ty: 30, rot: 10, img: 'assets/img/6156929352642269387.jpg' },  // Bottom left
+            { tx: -35, ty: 30, rot: 10, img: 'assets/img/6169946256055144015.jpg' },  // Bottom left
             { tx: 35, ty: -35, rot: 20, img: 'assets/img/6156929352642269388.jpg' },  // Top right
-            { tx: 40, ty: 0, rot: 30, img: 'assets/img/6156929352642269389.jpg' },   // Middle right
+            { tx: 40, ty: 0, rot: 30, img: 'assets/img/photo.jpg' },   // Middle right
             { tx: 30, ty: 35, rot: -10, img: 'assets/img/6169946256055144014.jpg' }   // Bottom right
         ];
-        
+
         frameTargets.forEach((target, index) => {
             const frame = document.createElement('div');
             frame.classList.add('scatter-frame');
-            
+
             // Allow polaroid style frame behind it, and the image nested nicely inside
             const innerPhoto = document.createElement('div');
             innerPhoto.classList.add('scatter-photo');
             innerPhoto.style.backgroundImage = `url("${target.img}")`;
-            
+
             frame.appendChild(innerPhoto);
-            
+
             framesLayer.appendChild(frame);
-            
+
             // Trigger reflow to ensure the transition works from the starting scale(0.1)
             void frame.offsetWidth;
-            
+
             // Add scatter class and final transform with a slight stagger
             setTimeout(() => {
                 frame.style.transform = `translate(calc(-50% + ${target.tx}vw), calc(-50% + ${target.ty}vh)) rotate(${target.rot}deg) scale(1)`;
@@ -148,19 +221,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleCursorMove(e) {
         // Create a love particle every few pixels to avoid lagging
-        if (Math.random() > 0.3) return; 
+        if (Math.random() > 0.3) return;
 
         const love = document.createElement('div');
         love.classList.add('cursor-love');
         // Randomize the character (hearts, stars, etc)
         const characters = ['❤', '💕', '💖', '💗', '💘', '✨'];
         love.innerText = characters[Math.floor(Math.random() * characters.length)];
-        
+
         love.style.left = `${e.clientX}px`;
         love.style.top = `${e.clientY}px`;
-        
+
         document.body.appendChild(love);
-        
+
         // Remove after animation (1s)
         setTimeout(() => {
             love.remove();
@@ -175,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const numDoodles = 12; // slightly reduced to give more breathing room
         const doodleTexts = ['Love', 'Forever', '❤', 'Happy', 'Smile', 'Joy', '23', '🎉', 'Cutie', 'Beautiful', 'Gorgeous', 'Lovely', 'Stunning', 'Pretty', 'Angel'];
-        
+
         // Track positions to prevent overlap
         const placedPositions = [];
         const minDistance = 15; // minimum distance in viewport units (vw/vh)
@@ -236,5 +309,86 @@ document.addEventListener('DOMContentLoaded', () => {
                 doodlesLayer.appendChild(doodle);
             }
         }
+    }
+
+    // 7. Global Quiz Checker for Multiple Choice
+    window.checkQuiz = function (quizId, answer, buttonElement) {
+        const feedback = document.getElementById(`quiz-feedback-${quizId}`);
+        const polaroid = document.getElementById(`quiz-${quizId}`);
+        const photo = polaroid.querySelector('.quiz-photo');
+
+        if (!feedback || !polaroid) return;
+
+        // If already solved, ignore clicks
+        if (polaroid.classList.contains('solved')) return;
+
+        // Correct answers
+        const correctAnswers = {
+            1: 'spiderman',
+            2: 'bandung'
+        };
+
+        if (answer === correctAnswers[quizId]) {
+            feedback.textContent = "Correct! ✨";
+            feedback.style.color = "#4CAF50";
+
+            // Reveal Photo
+            if (photo) {
+                photo.classList.remove('quiz-photo-hidden');
+            }
+
+            // Mark button green
+            buttonElement.style.background = "#c8e6c9";
+            buttonElement.style.borderColor = "#4CAF50";
+
+            // Mark as solved
+            setTimeout(() => {
+                polaroid.classList.add('solved');
+                quizzesSolved++;
+            }, 1200);
+
+        } else {
+            feedback.textContent = "Not quite! Try again 💖";
+            feedback.style.color = "var(--accent)";
+
+            // Mark button red temporarily
+            buttonElement.classList.add('selected-wrong');
+
+            // Shake effect
+            polaroid.style.transform = polaroid.style.transform + ' translateX(5px)';
+            setTimeout(() => {
+                polaroid.style.transform = polaroid.style.transform.replace(' translateX(5px)', '');
+                buttonElement.classList.remove('selected-wrong');
+            }, 400);
+        }
+    }
+
+    // Gmail Mailto Builder
+    const sendEmailBtn = document.getElementById('js-send-email');
+    if (sendEmailBtn) {
+        sendEmailBtn.addEventListener('click', () => {
+            const msg = document.getElementById('gratitude-message').value;
+            if (!msg.trim()) {
+                alert("Please write a small message first! 💌");
+                return;
+            }
+            // URL Encode the body text
+            const encodedBody = encodeURIComponent(msg);
+
+            // NOTE TO DEVELOPER: User must change 'your_email@gmail.com' to their actual email
+            const emailAddress = "your_email@gmail.com";
+            const subject = "A Birthday Message From Elema!";
+
+            // Opens default mail client (or Gmail via web intents depending on device setup)
+            window.open(`mailto:${emailAddress}?subject=${encodeURIComponent(subject)}&body=${encodedBody}`);
+        });
+    }
+
+    // Simple "Say Something" button logic connects to gratitude form
+    const saySomethingBtnObj = document.getElementById('js-say-something');
+    if (saySomethingBtnObj && gratitudeForm) {
+        saySomethingBtnObj.addEventListener('click', () => {
+            gratitudeForm.hidden = !gratitudeForm.hidden;
+        });
     }
 });

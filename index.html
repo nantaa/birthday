@@ -11,14 +11,18 @@
 </head>
 
 <body>
-    <main class="page">
+    <!-- 3. Explicit Background Music Toggle -->
+    <button id="btn-audio" class="music-toggle" hidden>Play song ♪</button>
+
+    <main class="page" id="main-content">
         <section class="card-container">
             <div class="envelope shadow-pulse" id="js-envelope">
                 <div class="envelope__back"></div>
                 <div class="envelope__letter">
                     <div class="letter__inner">
-                        <!-- Picture Placement Personal Touch -->
-                        <div class="letter__photo-wrapper">
+                        <!-- Picture Placement Personal Touch & Easter Egg 4. -->
+                        <!-- Picture Placement Personal Touch & Easter Egg 4. -->
+                        <div class="letter__photo-wrapper" id="js-easter-egg">
                             <img src="assets/img/photo.jpg" alt="Elema Astri" class="letter__photo">
                             <div class="photo-pin"></div>
                         </div>
@@ -55,13 +59,49 @@
             <!-- Scattering frames overlay -->
             <div class="frames-layer" id="js-frames"></div>
 
+            <!-- Controls -->
             <div class="controls">
-                <p class="hint" id="js-hint">Tap the envelope to open your letter 💌</p>
-                <button class="btn btn-replay" id="js-replay" hidden>Close</button>
+                <button class="btn btn-replay" id="js-replay" hidden>Close Envelope</button>
+                <button class="btn btn-action" id="js-say-something" hidden>Say Something</button>
                 <p class="photo-instruction" id="js-instruction" hidden><small><em></em></small></p>
             </div>
         </section>
     </main>
+
+    <!-- 7. Interactive Quiz Polaroids -->
+    <div class="quiz-layer" id="js-quiz-layer" hidden>
+        <div class="quiz-polaroid" id="quiz-1">
+            <div class="quiz-photo quiz-photo-hidden"></div>
+            <div class="quiz-content">
+                <p class="quiz-question">What was the first movie we watched together?</p>
+                <div class="quiz-options">
+                    <button class="btn-option" onclick="checkQuiz(1, 'avenger', this)">Pabrik Gula</button>
+                    <button class="btn-option" onclick="checkQuiz(1, 'batman', this)">Tunggu aku sukses nanti</button>
+                    <button class="btn-option" onclick="checkQuiz(1, 'spiderman', this)">Alas Roban</button>
+                </div>
+                <p class="quiz-feedback" id="quiz-feedback-1"></p>
+            </div>
+        </div>
+        <div class="quiz-polaroid" id="quiz-2">
+            <div class="quiz-photo quiz-photo-hidden"></div>
+            <div class="quiz-content">
+                <p class="quiz-question">When is our first date?</p>
+                <div class="quiz-options">
+                    <button class="btn-option" onclick="checkQuiz(2, 'jakarta', this)">8 Februari 2026</button>
+                    <button class="btn-option" onclick="checkQuiz(2, 'bandung', this)">7 Februari 2026</button>
+                    <button class="btn-option" onclick="checkQuiz(2, 'bali', this)">14 Februari 2026</button>
+                </div>
+                <p class="quiz-feedback" id="quiz-feedback-2"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Text Input for Gratitude Form -->
+    <div class="gratitude-form" id="js-gratitude-form" hidden>
+        <h3>Write something for me...</h3>
+        <textarea id="gratitude-message" rows="4" placeholder="Your message..."></textarea>
+        <button class="btn btn-send" id="js-send-email">Send Message 💌</button>
+    </div>
 
     <script src="assets/js/main.js"></script>
 </body>
